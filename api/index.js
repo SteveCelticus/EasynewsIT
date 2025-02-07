@@ -114,11 +114,6 @@ app.get("/manifest.json", (req, res) => {
   return res.send(json);
 });
 
-app.use((req, res, next) => {
-  console.log("Richiesta ricevuta:", req.method, req.url);
-  next();
-});
-
 app.get("/stream/:type/:id", async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "*");
@@ -133,6 +128,11 @@ if (!auth || !UTILS.isValidAuth(auth)) {
 const header = UTILS.getAuthorization(auth);
 console.log("Header:", header);
 
+app.use((req, res, next) => {
+  console.log("Richiesta ricevuta:", req.method, req.url);
+  next();
+});
+  
   try {
     console.log(`Cache content: ${cache.data ? Object.keys(cache.data).length : 0}`);
   } catch (error) {}
