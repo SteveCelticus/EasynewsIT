@@ -24,21 +24,18 @@ const {
 let cache = { lastInvalidatedAt: Date.now(), data: {} };
 const cacheMaxDuration = 1000 * 60 * 60 * 24 * 1; // 1 giorno
 
-// Rotta per la root:
-// Se l'URL contiene il parametro auth nel formato desiderato, effettua il redirect a /manifest.json
+// Gestione della root con supporto per auth negli header
 app.get("/", (req, res) => {
-  if (req.query.auth && req.query.auth.endsWith("/manifest.json")) {
-    // Estrae le credenziali rimuovendo la parte "/manifest.json"
-    const authWithSuffix = req.query.auth;
-    const auth = authWithSuffix.replace("/manifest.json", "");
-    if (!UTILS.isValidAuth(auth)) {
+  const auth = req.query.auth || req.headers["authorization"];
+  console.log("Received auth:", auth); // Debug
+
+  if (auth && auth.endsWith("/manifest.json")) {
+    if (!UTILS.isValidAuth(auth.replace("/manifest.json", ""))) {
       return res.status(403).send({ error: "Invalid or missing authentication" });
     }
-  // Redirect a /manifest.json con le credenziali nella query string
-  return res.redirect("/manifest.json?auth=" + auth);
-}
-      // Se non c'è il parametro auth nel formato richiesto, mostra la pagina di login
-  // Altrimenti, mostra la pagina di login per generare il link
+    return res.sendFile(__dirname + "/manifest.json");
+  }
+
   res.send(`
     <!DOCTYPE html>
     <html lang="en">
@@ -56,27 +53,22 @@ app.get("/", (req, res) => {
       <p><button id="installStremioButton" style="display:none;">Install in Stremio</button></p>
       <script>
         document.getElementById('generateManifestButton').addEventListener('click', function() {
-    var user = document.getElementById('user').value;
-    var pass = document.getElementById('pass').value;
-    if (!user || !pass) {
-        alert('Please enter credentials');
-        return;
-    }
-          // Genera la stringa Base64 "al volo"
+          var user = document.getElementById('user').value;
+          var pass = document.getElementById('pass').value;
+          if (!user || !pass) {
+              alert('Please enter credentials');
+              return;
+          }
           var auth = btoa(user + ":" + pass);
-          // Genera il link nel formato desiderato:
-          // http://localhost:3000/?auth=BASE64_CREDENZIALI/manifest.json
-          // var manifestUrl = window.location.origin + "/?auth=" + auth + "/manifest.json";
           var manifestUrl = window.location.origin + "/manifest.json?auth=" + encodeURIComponent(auth);
           console.log("Manifest URL:", manifestUrl);
           document.getElementById('manifestLink').innerHTML = "<a href='" + manifestUrl + "' target='_blank'>" + manifestUrl + "</a>";
-        var installUrl = "stremio://" + manifestUrl.replace("https://", "").replace("http://", "");
-    
-      var installButton = document.getElementById('installStremioButton');
-      installButton.style.display = "block";
-      installButton.onclick = function() {
-      window.location.href = installUrl;
-        };
+          var installUrl = "stremio://" + manifestUrl.replace("https://", "").replace("http://", "");
+          var installButton = document.getElementById('installStremioButton');
+          installButton.style.display = "block";
+          installButton.onclick = function() {
+            window.location.href = installUrl;
+          };
         });
       </script>
     </body>
@@ -89,8 +81,7 @@ app.get("/manifest.json", (req, res) => {
   res.setHeader("Access-Control-Allow-Headers", "*");
   res.setHeader("Content-Type", "application/json");
 
-  // const auth = req.query.auth;
-  const auth = req.headers.authorization; // Legge l’auth dagli header
+  const auth = req.query.auth || req.headers["authorization"];
   if (!auth || !UTILS.isValidAuth(auth)) {
     return res.status(403).send({ error: "Invalid or missing authentication" });
   }
@@ -109,8 +100,8 @@ app.get("/manifest.json", (req, res) => {
       },
     ],
     types: ["movie", "series"],
-    "catalogs": [],
-};
+    catalogs: [],
+  };
 
   return res.send(json);
 });
