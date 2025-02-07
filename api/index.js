@@ -89,7 +89,8 @@ app.get("/manifest.json", (req, res) => {
   res.setHeader("Access-Control-Allow-Headers", "*");
   res.setHeader("Content-Type", "application/json");
 
-  const auth = req.query.auth;
+  // const auth = req.query.auth;
+  const auth = req.headers.authorization; // Legge l’auth dagli header
   if (!auth || !UTILS.isValidAuth(auth)) {
     return res.status(403).send({ error: "Invalid or missing authentication" });
   }
@@ -108,13 +109,7 @@ app.get("/manifest.json", (req, res) => {
       },
     ],
     types: ["movie", "series"],
-    "catalogs": [
-  {
-    "type": "movie",
-    "id": "test",
-    "name": "Test Catalog"
-  },
-],
+    "catalogs": [],
 };
 
   return res.send(json);
