@@ -62,15 +62,15 @@ app.get("/", (req, res) => {
         alert('Please enter credentials');
         return;
     }
-          // Genera la stringa Base64 "al volo"
+            // Genera la stringa Base64 "al volo"
           var auth = btoa(user + ":" + pass);
           // Genera il link nel formato desiderato:
           // http://localhost:3000/?auth=BASE64_CREDENZIALI/manifest.json
-          var manifestUrl = window.location.origin + "/?auth=" + encodeURIComponent(auth) + "/manifest.json";
+          var manifestUrl = window.location.origin + "/?auth=" + auth + "/manifest.json";
           // var manifestUrl = window.location.origin + "/manifest.json?auth=" + encodeURIComponent(auth);
           console.log("Manifest URL:", manifestUrl);
           document.getElementById('manifestLink').innerHTML = "<a href='" + manifestUrl + "' target='_blank'>" + manifestUrl + "</a>";
-        var installUrl = "stremio://window.location.origin + encodeURIComponent(auth) + "/manifest.json";
+        var installUrl = "stremio://" + manifestUrl.replace("https://", "").replace("http://", "");
     
       var installButton = document.getElementById('installStremioButton');
       installButton.style.display = "block";
