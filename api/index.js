@@ -70,7 +70,7 @@ app.get("/", (req, res) => {
           // var manifestUrl = window.location.origin + "/manifest.json?auth=" + encodeURIComponent(auth);
           console.log("Manifest URL:", manifestUrl);
           document.getElementById('manifestLink').innerHTML = "<a href='" + manifestUrl + "' target='_blank'>" + manifestUrl + "</a>";
-        var installUrl = "stremio://" + "/?auth=" + encodeURIComponent(auth) + "/manifest.json";
+        var installUrl = "stremio://window.location.origin + encodeURIComponent(auth) + "/manifest.json";
     
       var installButton = document.getElementById('installStremioButton');
       installButton.style.display = "block";
