@@ -84,12 +84,12 @@ app.get("/", (req, res) => {
   `);
 });
 
-app.get("/manifest.json", (req, res) => {
+app.get("/auth/:auth/manifest.json", (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "*");
   res.setHeader("Content-Type", "application/json");
 
-  const auth = req.query.auth;
+  const auth = req.params.auth;
   if (!auth || !UTILS.isValidAuth(auth)) {
     return res.status(403).send({ error: "Invalid or missing authentication" });
   }
