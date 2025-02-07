@@ -84,12 +84,12 @@ app.get("/", (req, res) => {
   `);
 });
 
-app.get("/auth/:auth/manifest.json", (req, res) => {
+app.get("/manifest.json", (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "*");
   res.setHeader("Content-Type", "application/json");
 
-  const auth = req.params.auth;
+  const auth = req.query.auth;
   if (!auth || !UTILS.isValidAuth(auth)) {
     return res.status(403).send({ error: "Invalid or missing authentication" });
   }
@@ -114,19 +114,16 @@ app.get("/auth/:auth/manifest.json", (req, res) => {
   return res.send(json);
 });
 
-app.get("/auth/:auth/stream/:type/:id", (req, res) => {
+app.get("/stream/:type/:id", async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
   res.setHeader("Content-Type", "application/json");
 
-  const auth = req.params.auth;
-  if (!auth || !UTILS.isValidAuth(auth)) {
-    return res.status(403).send({ error: "Invalid or missing authentication" });
-  }
-
-  console.log("Richiesta stream ricevuta su Android:", req.params);
-
+// Recupera auth dalla query
+const auth = req.query.auth;
+if (!auth || !UTILS.isValidAuth(auth)) {
+  return res.status(403).send({ error: "Missing or invalid authentication" });
+}
 
 const header = UTILS.getAuthorization(auth);
 console.log("Header:", header);
@@ -165,7 +162,7 @@ console.log("Header:", header);
   let result = (await Promise.all(promises)).flat();
   // console.log("Risultati grezzi:", result);
   result = removeDuplicate(result.filter(el => !!el && !!el["3"] && !el["5"]?.includes("sample")), "4");
-  console.log("🔍 Risultati DOPO removeDuplicate:", JSON.stringify(result, null, 2));
+  // console.log("🔍 Risultati DOPO removeDuplicate:", JSON.stringify(result, null, 2));
   // console.log({ Results: result.length });
 
   let streams = result
