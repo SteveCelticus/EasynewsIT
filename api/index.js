@@ -94,35 +94,7 @@ app.get("/", (req, res) => {
   `);
 });
 
-app.get("/manifest.json", (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Headers", "*");
-  res.setHeader("Content-Type", "application/json");
 
-  const auth = req.query.auth;
-  if (!auth || !UTILS.isValidAuth(auth)) {
-    return res.status(403).send({ error: "Invalid or missing authentication" });
-  }
-
-  const json = {
-    id: "stremio.web.stream",
-    version: "2.0.0",
-    name: "StremioItaliaGroup Easynews v2",
-    description: "Search streams from your Easynews",
-    logo: "https://i.imgur.com/FFbEwKi.jpeg",
-    resources: [
-      {
-        name: "stream",
-        types: ["movie", "series", "anime"],
-        idPrefixes: ["tt", "kitsu"],
-      },
-    ],
-    types: ["movie", "series"],
-    catalogs: [],
-  };
-
-  return res.send(json);
-});
 
 app.get("/stream/:type/:id", async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
