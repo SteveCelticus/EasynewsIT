@@ -113,8 +113,9 @@ app.get("/manifest.json", (req, res) => {
     "type": "movie",
     "id": "test",
     "name": "Test Catalog"
-  }
-];
+  },
+],
+};
 
   return res.send(json);
 });
