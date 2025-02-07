@@ -260,7 +260,7 @@ cache.data[id] = streams;
 
   // console.log("🚀 Streams inviati a Stremio:", JSON.stringify(streams, null, 2));
 
-  return res.send({ streams: [] });
+  return res.send({ streams });
 });
 
 app.listen(process.env.PORT || 3000, () => {
