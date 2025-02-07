@@ -114,6 +114,11 @@ app.get("/manifest.json", (req, res) => {
   return res.send(json);
 });
 
+app.use((req, res, next) => {
+  console.log("Richiesta ricevuta:", req.method, req.url);
+  next();
+});
+
 app.get("/stream/:type/:id", async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "*");
