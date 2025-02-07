@@ -114,19 +114,22 @@ app.get("/auth/:auth/manifest.json", (req, res) => {
   return res.send(json);
 });
 
-app.get("/stream/:type/:id", async (req, res) => {
+app.get("/auth/:auth/stream/:type/:id", (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
   res.setHeader("Content-Type", "application/json");
 
-// Recupera auth dalla query
-const auth = req.query.auth;
-if (!auth || !UTILS.isValidAuth(auth)) {
-  return res.status(403).send({ error: "Missing or invalid authentication" });
-}
+  const auth = req.params.auth;
+  if (!auth || !UTILS.isValidAuth(auth)) {
+    return res.status(403).send({ error: "Invalid or missing authentication" });
+  }
+
+  console.log("Richiesta stream ricevuta su Android:", req.params);
+
 
 const header = UTILS.getAuthorization(auth);
-// console.log("Header:", header);
+console.log("Header:", header);
 
   try {
     console.log(`Cache content: ${cache.data ? Object.keys(cache.data).length : 0}`);
@@ -153,7 +156,7 @@ const header = UTILS.getAuthorization(auth);
   let aliases = aliasesString ? aliasesString.split("||") : [];
   let meta = await UTILS.getMeta2(tt, media);
 
-  // console.log({ meta });
+  console.log({ meta });
 
   let promises = media === "movie"
     ? [UTILS.fetchEasynews(`${meta?.name} ${meta.year}`, auth)]
@@ -162,7 +165,7 @@ const header = UTILS.getAuthorization(auth);
   let result = (await Promise.all(promises)).flat();
   // console.log("Risultati grezzi:", result);
   result = removeDuplicate(result.filter(el => !!el && !!el["3"] && !el["5"]?.includes("sample")), "4");
-  // console.log("🔍 Risultati DOPO removeDuplicate:", JSON.stringify(result, null, 2));
+  console.log("🔍 Risultati DOPO removeDuplicate:", JSON.stringify(result, null, 2));
   // console.log({ Results: result.length });
 
   let streams = result
@@ -257,7 +260,7 @@ cache.data[id] = streams;
 
   // console.log("🚀 Streams inviati a Stremio:", JSON.stringify(streams, null, 2));
 
-  return res.send({ streams });
+  return res.send({ streams: [] });
 });
 
 app.listen(process.env.PORT || 3000, () => {
