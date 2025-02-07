@@ -1,0 +1,16 @@
+{
+  "id": "stremio.web.stream",
+  "version": "2.0.0",
+  "name": "StremioItaliaGroup Easynews v2",
+  "description": "Search streams from your Easynews",
+  "logo": "https://i.imgur.com/FFbEwKi.jpeg",
+  "resources": [
+    {
+      "name": "stream",
+      "types": ["movie", "series", "anime"],
+      "idPrefixes": ["tt", "kitsu"]
+    }
+  ],
+  "types": ["movie", "series"],
+  "catalogs": []
+}
