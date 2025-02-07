@@ -126,7 +126,7 @@ if (!auth || !UTILS.isValidAuth(auth)) {
 }
 
 const header = UTILS.getAuthorization(auth);
-// console.log("Header:", header);
+console.log("Header:", header);
 
   try {
     console.log(`Cache content: ${cache.data ? Object.keys(cache.data).length : 0}`);
@@ -153,7 +153,7 @@ const header = UTILS.getAuthorization(auth);
   let aliases = aliasesString ? aliasesString.split("||") : [];
   let meta = await UTILS.getMeta2(tt, media);
 
-  // console.log({ meta });
+  console.log({ meta });
 
   let promises = media === "movie"
     ? [UTILS.fetchEasynews(`${meta?.name} ${meta.year}`, auth)]
@@ -255,7 +255,7 @@ streams.sort((a, b) => {
 streams.forEach(stream => { /* Operazioni aggiuntive se necessarie */ });
 cache.data[id] = streams;
 
-  // console.log("🚀 Streams inviati a Stremio:", JSON.stringify(streams, null, 2));
+  console.log("🚀 Streams inviati a Stremio:", JSON.stringify(streams, null, 2));
 
   return res.send({ streams });
 });
