@@ -29,72 +29,90 @@ const cacheMaxDuration = 1000 * 60 * 60 * 24 * 1; // 1 giorno
 app.get("/", (req, res) => {
   if (req.query.auth && req.query.auth.endsWith("/manifest.json")) {
     // Estrae le credenziali rimuovendo la parte "/manifest.json"
-    // const authWithSuffix = req.query.auth;
-    // const auth = authWithSuffix.replace("/manifest.json", "");
-    const auth = req.query.auth.replace("/manifest.json", "");
+    const authWithSuffix = req.query.auth;
+    const auth = authWithSuffix.replace("/manifest.json", "");
     if (!UTILS.isValidAuth(auth)) {
       return res.status(403).send({ error: "Invalid or missing authentication" });
     }
-  // **Invece di un redirect, serviamo direttamente il manifest**
-        return res.json({
-            id: "stremio.web.stream",
-            version: "2.0.0",
-            name: "StremioItaliaGroup Easynews v2",
-            description: "Search streams from your Easynews",
-            logo: "https://i.imgur.com/FFbEwKi.jpeg",
-            resources: [
-                {
-                    name: "stream",
-                    types: ["movie", "series", "anime"],
-                    idPrefixes: ["tt", "kitsu"],
-                },
-            ],
-            types: ["movie", "series"],
-            catalogs: [],
-        });
-    }
+  // Redirect a /manifest.json con le credenziali nella query string
+  return res.redirect("/manifest.json?auth=" + auth);
+}
       // Se non c'è il parametro auth nel formato richiesto, mostra la pagina di login
+  // Altrimenti, mostra la pagina di login per generare il link
   res.send(`
-     res.send(`
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Authentication</title>
-        </head>
-        <body>
-          <h2>Enter Credentials</h2>
-          <input type="text" id="user" placeholder="Username">
-          <input type="password" id="pass" placeholder="Password">
-          <button id="generateManifestButton">Generate Manifest Link</button>
-          <p id="manifestLink"></p>
-          <p><button id="installStremioButton" style="display:none;">Install in Stremio</button></p>
-          <script>
-            document.getElementById('generateManifestButton').addEventListener('click', function() {
-                var user = document.getElementById('user').value;
-                var pass = document.getElementById('pass').value;
-                if (!user || !pass) {
-                    alert('Please enter credentials');
-                    return;
-                }
-                var auth = btoa(user + ":" + pass);
-                var manifestUrl = window.location.origin + "/?auth=" + auth + "/manifest.json";
-                document.getElementById('manifestLink').innerHTML = "<a href='" + manifestUrl + "' target='_blank'>" + manifestUrl + "</a>";
-                var installUrl = "stremio://" + manifestUrl.replace("https://", "").replace("http://", "");
-                var installButton = document.getElementById('installStremioButton');
-                installButton.style.display = "block";
-                installButton.onclick = function() {
-                    window.location.href = installUrl;
-                };
-            });
-          </script>
-        </body>
-        </html>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Authentication</title>
+    </head>
+    <body>
+      <h2>Enter Credentials</h2>
+      <input type="text" id="user" placeholder="Username">
+      <input type="password" id="pass" placeholder="Password">
+      <button id="generateManifestButton">Generate Manifest Link</button>
+      <p id="manifestLink"></p>
+      <p><button id="installStremioButton" style="display:none;">Install in Stremio</button></p>
+      <script>
+        document.getElementById('generateManifestButton').addEventListener('click', function() {
+    var user = document.getElementById('user').value;
+    var pass = document.getElementById('pass').value;
+    if (!user || !pass) {
+        alert('Please enter credentials');
+        return;
+    }
+          // Genera la stringa Base64 "al volo"
+          var auth = btoa(user + ":" + pass);
+          // Genera il link nel formato desiderato:
+          // http://localhost:3000/?auth=BASE64_CREDENZIALI/manifest.json
+          var manifestUrl = window.location.origin + "/?auth=" + auth + "/manifest.json";
+          // var manifestUrl = window.location.origin + "/manifest.json?auth=" + encodeURIComponent(auth);
+          console.log("Manifest URL:", manifestUrl);
+          document.getElementById('manifestLink').innerHTML = "<a href='" + manifestUrl + "' target='_blank'>" + manifestUrl + "</a>";
+        var installUrl = "stremio://" + manifestUrl.replace("https://", "").replace("http://", "");
+    
+      var installButton = document.getElementById('installStremioButton');
+      installButton.style.display = "block";
+      installButton.onclick = function() {
+      window.location.href = installUrl;
+        };
+        });
+      </script>
+    </body>
+    </html>
   `);
 });
 
+app.get("/manifest.json", (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers", "*");
+  res.setHeader("Content-Type", "application/json");
 
+  const auth = req.query.auth;
+  if (!auth || !UTILS.isValidAuth(auth)) {
+    return res.status(403).send({ error: "Invalid or missing authentication" });
+  }
+
+  const json = {
+    id: "stremio.web.stream",
+    version: "2.0.0",
+    name: "StremioItaliaGroup Easynews v2",
+    description: "Search streams from your Easynews",
+    logo: "https://i.imgur.com/FFbEwKi.jpeg",
+    resources: [
+      {
+        name: "stream",
+        types: ["movie", "series", "anime"],
+        idPrefixes: ["tt", "kitsu"],
+      },
+    ],
+    types: ["movie", "series"],
+    catalogs: [],
+  };
+
+  return res.send(json);
+});
 
 app.get("/stream/:type/:id", async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -108,7 +126,7 @@ if (!auth || !UTILS.isValidAuth(auth)) {
 }
 
 const header = UTILS.getAuthorization(auth);
-console.log("Header:", header);
+// console.log("Header:", header);
 
   try {
     console.log(`Cache content: ${cache.data ? Object.keys(cache.data).length : 0}`);
@@ -135,7 +153,7 @@ console.log("Header:", header);
   let aliases = aliasesString ? aliasesString.split("||") : [];
   let meta = await UTILS.getMeta2(tt, media);
 
-  console.log({ meta });
+  // console.log({ meta });
 
   let promises = media === "movie"
     ? [UTILS.fetchEasynews(`${meta?.name} ${meta.year}`, auth)]
@@ -237,7 +255,7 @@ streams.sort((a, b) => {
 streams.forEach(stream => { /* Operazioni aggiuntive se necessarie */ });
 cache.data[id] = streams;
 
-  console.log("🚀 Streams inviati a Stremio:", JSON.stringify(streams, null, 2));
+  // console.log("🚀 Streams inviati a Stremio:", JSON.stringify(streams, null, 2));
 
   return res.send({ streams });
 });
