@@ -108,8 +108,13 @@ app.get("/manifest.json", (req, res) => {
       },
     ],
     types: ["movie", "series"],
-    catalogs: [],
-  };
+    "catalogs": [
+  {
+    "type": "movie",
+    "id": "test",
+    "name": "Test Catalog"
+  }
+];
 
   return res.send(json);
 });
