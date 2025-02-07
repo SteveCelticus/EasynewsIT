@@ -52,18 +52,7 @@ const qualities = {
 };
 
 let containEandS = (name = "", s, e, abs, abs_season, abs_episode) =>
-  //SxxExx ./ /~/-
-  //SxExx
-  //SxExx
-  //axb
-  //Sxx - Exx
-  //Sxx.Exx
-  //Season xx Exx
-  //SasEae selon abs
-  //SasEaex  selon abs
-  //SasEaexx  selon abs
-  //SxxEaexx selon abs
-  //SxxEaexxx  selon abs
+  
   name?.includes(`s${s?.padStart(2, "0")}e${e?.padStart(2, "0")} `) ||
   name?.includes(`s${s?.padStart(2, "0")}e${e?.padStart(2, "0")}.`) ||
   name?.includes(`s${s?.padStart(2, "0")}e${e?.padStart(2, "0")}-`) ||
@@ -98,11 +87,7 @@ let containEandS = (name = "", s, e, abs, abs_season, abs_episode) =>
       )));
 
 let containE_S = (name = "", s, e, abs, abs_season, abs_episode) =>
-  //Sxx - xx
-  //Sx - xx
-  //Sx - x
-  //Season x - x
-  //Season x - xx
+  
   name?.includes(`s${s?.padStart(2, "0")} - ${e?.padStart(2, "0")}`) ||
   name?.includes(`s${s} - ${e?.padStart(2, "0")}`) ||
   // name?.includes(`s${s} - ${e}`) ||
@@ -111,11 +96,7 @@ let containE_S = (name = "", s, e, abs, abs_season, abs_episode) =>
   name?.includes(`season ${s} - ${e?.padStart(2, "0")}`);
 
 let containsAbsoluteE = (name = "", s, e, abs, abs_season, abs_episode) =>
-  //- xx
-  //- xxx
-  //- xxxx
-  //-exxxx
-  //- 0x
+  
   name?.includes(` ${abs_episode?.padStart(2, "0")} `) ||
   name?.includes(`e${abs_episode?.padStart(2, "0")} `) ||
   name?.includes(` ${abs_episode?.padStart(3, "0")} `) ||
@@ -126,11 +107,7 @@ let containsAbsoluteE = (name = "", s, e, abs, abs_season, abs_episode) =>
   name?.includes(` ${abs_episode?.padStart(4, "0")} `);
 
 let containsAbsoluteE_ = (name = "", s, e, abs, abs_season, abs_episode) => {
-  // xx.
-  // xxx.
-  // xxxx.
-  // 0x.
-
+  
   return (
     name?.includes(` ${abs_episode?.padStart(2, "0")}.`) ||
     name?.includes(`e${abs_episode?.padStart(2, "0")}.`) ||
@@ -160,7 +137,7 @@ const parseToStreamUrl = (baseURL, data) => {
 };
 
 let cleanName = (name = "") => {
-  // the, and, of, in, to, it, is, for, that, on, at, with
+  
   return sanitirizeName(name)
     .toLowerCase()
     .replace(/\s+the\s+/g, " ")
@@ -181,7 +158,7 @@ let cleanName = (name = "") => {
 };
 
 let sanitirizeName = (name = "") => {
-  // the, and, of, in, to, it, is, for, that, on, at, with
+  
   return name
     .replace(/[^a-zA-Z0-9 ]/g, "")
     .replace(/\s{2,}/g, " ")
@@ -303,7 +280,7 @@ const getFlagFromName = (file_name, audios = []) => {
 
 const filterBasedOnQuality = (streams = [], quality = "", audios = []) => {
   if (!quality || !Object.values(qualities).includes(quality)) {
-    return streams; // NON eliminare gli stream se la qualità non è specificata
+    return streams;
   }
 
   if (quality == qualities.unknown) {
@@ -374,8 +351,6 @@ let isVideo = (element) => {
   // if (!url) return url;
 
  // let pUrl = `https://cdpproxy.stuff2-stuff216.workers.dev?url=${encodeURIComponent(url)}`;
- // let pUrl = `https://stremio.steveceltis.workers.dev?url=${encodeURIComponent(url)}`;
-  // let pUrl = `http://eswrktob-rotate:kwur4tb3qd97@p.webshare.io:80?url=${encodeURIComponent(url)}`;
   // return pUrl;
  // };
 
