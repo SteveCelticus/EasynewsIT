@@ -92,7 +92,7 @@ app.get("/auth/:auth/manifest.json", function (req, res) {
   return res.send(json);
 });
 
-app.get("/auth/:auth/stream/:type/:id.json", async (req, res) => {
+app.get("/auth/:auth/stream/:type/:id.json", async function (req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
@@ -101,9 +101,9 @@ app.get("/auth/:auth/stream/:type/:id.json", async (req, res) => {
 // Recupera auth dalla query
 const auth = req.query.auth;
 if (!auth || !UTILS.isValidAuth(auth)) {
+  console.log("❌ Errore autenticazione per", auth);
   return res.status(403).send({ error: "Missing or invalid authentication" });
 }
-
 const header = UTILS.getAuthorization(auth);
 console.log("Header:", header);
 
