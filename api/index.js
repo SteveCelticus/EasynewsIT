@@ -24,18 +24,8 @@ const {
 let cache = { lastInvalidatedAt: Date.now(), data: {} };
 const cacheMaxDuration = 1000 * 60 * 60 * 24 * 1; // 1 giorno
 
-// Gestione della root con supporto per auth negli header
+// 🔹 Sostituito: ora il login genera un link con `auth` nel percorso invece che nei parametri di query
 app.get("/", (req, res) => {
-  const auth = req.query.auth || req.headers["authorization"];
-  console.log("Received auth:", auth); // Debug
-
-  if (auth && auth.endsWith("/manifest.json")) {
-    if (!UTILS.isValidAuth(auth.replace("/manifest.json", ""))) {
-      return res.status(403).send({ error: "Invalid or missing authentication" });
-    }
-    return res.sendFile(__dirname + "/manifest.json");
-  }
-
   res.send(`
     <!DOCTYPE html>
     <html lang="en">
@@ -60,8 +50,7 @@ app.get("/", (req, res) => {
               return;
           }
           var auth = btoa(user + ":" + pass);
-          var manifestUrl = window.location.origin + "/manifest.json?auth=" + encodeURIComponent(auth);
-          console.log("Manifest URL:", manifestUrl);
+          var manifestUrl = window.location.origin + "/auth/" + auth + "/manifest.json";
           document.getElementById('manifestLink').innerHTML = "<a href='" + manifestUrl + "' target='_blank'>" + manifestUrl + "</a>";
           var installUrl = "stremio://" + manifestUrl.replace("https://", "").replace("http://", "");
           var installButton = document.getElementById('installStremioButton');
@@ -76,12 +65,9 @@ app.get("/", (req, res) => {
   `);
 });
 
-app.get("/manifest.json", (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Headers", "*");
-  res.setHeader("Content-Type", "application/json");
-
-  const auth = req.query.auth || req.headers["authorization"];
+// 🔹 Sostituito: il manifest ora si trova sotto `/auth/:auth/manifest.json`
+app.get("/auth/:auth/manifest.json", function (req, res) {
+  const auth = req.params.auth;
   if (!auth || !UTILS.isValidAuth(auth)) {
     return res.status(403).send({ error: "Invalid or missing authentication" });
   }
@@ -106,9 +92,10 @@ app.get("/manifest.json", (req, res) => {
   return res.send(json);
 });
 
-app.get("/stream/:type/:id", async (req, res) => {
+app.get("/auth/:auth/stream/:type/:id.json", async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
   res.setHeader("Content-Type", "application/json");
 
 // Recupera auth dalla query
