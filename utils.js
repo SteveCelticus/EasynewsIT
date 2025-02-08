@@ -7,10 +7,15 @@ const getAuthorization = (auth) => {
 };
 
 const isValidAuth = (auth) => {
-  if (!auth) return false;
-  const decoded = Buffer.from(auth, "base64").toString("utf-8");
-  const [user, pass] = decoded.split(":");
-  return Boolean(user && pass);
+  try {
+    if (!auth) return false;
+    const decoded = Buffer.from(auth, "base64").toString("utf-8");
+    const [user, pass] = decoded.split(":");
+    return Boolean(user && pass);
+  } catch (error) {
+    console.log("❌ Errore decodifica auth:", error);
+    return false;
+  }
 };
 
 let isRedirect = async (url) => {
@@ -58,15 +63,16 @@ let isRedirect = async (url) => {
   console.log({ query });
   let url = `https://members.easynews.com/2.0/search/solr-search/?fly=2&gps=${query}&pby=9999&pno=1&s1=nsubject&s1d=%2B&s2=nrfile&s2d=%2B&s3=dsize&s3d=%2B&sS=0&d1t&d2t&b1t&b2t&px1t&px2t&fps1t&fps2t&bps1t&bps2t&hz1t&hz2t&rn1t&rn2t&grpF[]&st=adv&safeO=0&sb=1&fex=mkv mp4 ts avi flv`;
 
-  return await fetch(url, {
-    headers: {
-      accept: "*/*",
-      Authorization: getAuthorization(auth), // || defaultAuthorization,
-      // Authorization: defaultAuthorization,
-    },
-    referrerPolicy: "no-referrer",
-    method: "GET",
-  })
+  console.log("📡 Contattando Easynews con:", query);
+  try {
+    const response = await fetch(url, {
+      headers: {
+        accept: "*/*",
+        Authorization: getAuthorization(auth),
+      },
+      method: "GET",
+    });
+
     .then((res) => res.json())
     .then(async (results) => {
       console.log({ Initial: "data" in results ? results["data"].length : 0 });
